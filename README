@@ -1,0 +1,24 @@
+This package contains code we've found useful for working with Hadoop and Cascading.
+
+Contents:
+--------------------------------------------------------------------------------
+- com.tellapart.cascading.hbase:
+  Versions of HBaseScheme (https://github.com/cwensel/cascading.hbase) which
+  allow one to use full Hadoop Serialization and Deserialization to serialize
+  arbitrary objects.
+- com.tellapart.thrift.hadoopserialization:
+  Hadoop serializer and deserializer for Thrift objects.
+
+To build:
+--------------------------------------------------------------------------------
+
+- Modify build.xml to point to your versions of the following libraries:
+  - HBase 0.20.6 JARs
+  - Cascading 1.2 JARs.
+  - Hadoop 0.20+ JARs.
+
+- Run:
+ant jar: Build the full JAR.
+ant runtests: Run the unittests.
+ant test-jar: Build the test library JAR.
+

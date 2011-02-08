@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <project name="tellapart-hadoop" default="jar" basedir=".">
+
+  <!-- Fill in the following with pointers to the correct libraries in your path:
+  -->
+  <property name="build.third_party.libs" location="${basedir}/.."/>
+  <property name="cascading.version" value="1.2.1"/>
+  <property name="cascading.home"
+      value="${build.third_party.libs}/cascading-${cascading.version}-hadoop-0.19.2+"/>
+  <property name="cascading.lib.core"
+      value="${cascading.home}/cascading-core-${cascading.version}.jar"/>
+  <property name="cascading.lib.xml"
+      value="${cascading.home}/cascading-xml-${cascading.version}.jar"/>
+  <property name="cascading.lib.test"
+      value="${cascading.home}/cascading-test-${cascading.version}.jar"/>
+  <property name="cascading.hbase.home" value="${build.third_party.libs}/cascading.hbase"/>
+  <property name="cascading.hbase.lib"
+      value="${cascading.hbase.home}/build/cascading-hbase.jar"/>
+  <property name="cascading.hbase.test-lib"
+      value="${cascading.hbase.home}/build/cascading-hbase-test.jar"/>
+  <property name="cascading.deps" value="${cascading.home}/lib"/>
+
+  <property name="hbase.version" value="0.20.6"/>
+  <property name="hadoop.home" value="${build.third_party.libs}/hadoop-0.20.0"/>
+  <property name="hadoop.lib.core" value="${hadoop.home}/hadoop-0.20.0-core.jar"/>
+  <property name="hadoop.deps" value="${hadoop.home}/lib"/>
+  <property name="hbase.home" value="${build.third_party.libs}/hbase-${hbase.version}"/>
+  <property name="hbase.lib.core"
+      value="${build.third_party.libs}/hbase-${hbase.version}/hbase-${hbase.version}.jar"/>
+  <property name="hbase.lib.test"
+      value="${build.third_party.libs}/hbase-${hbase.version}/hbase-${hbase.version}-test.jar"/>
+  <property name="hbase.deps" value="${hbase.home}/lib"/>
+
+  <!-- Done library pointers -->
+
+  <property name="build.dir" location="${basedir}/build/"/>
+  <property name="build.libs" location="${basedir}/libs/"/>
+  <property name="build.classes" location="${build.dir}/classes"/>
+  <property name="build.test.classes" location="${build.dir}/test-classes"/>
+  <property name="test.results" value="${build.dir}/test"/>
+  <property name="src.dir" location="${basedir}/src"/>
+
+  <path id="project.class.path">
+    <pathelement location="${build.classes}"/>
+    <pathelement location="${cascading.lib.core}"/>
+    <pathelement location="${cascading.lib.test}"/>
+    <pathelement location="${cascading.hbase.lib}"/>
+    <pathelement location="${cascading.hbase.test-lib}"/>
+    <pathelement location="${hadoop.lib.core}"/>
+    <pathelement location="${hbase.lib.core}"/>
+    <pathelement location="${hbase.lib.test}"/>
+    <fileset dir="${build.libs}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${cascading.deps}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${hadoop.deps}">
+      <include name="*.jar"/>
+    </fileset>
+    <fileset dir="${hbase.deps}">
+          <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="build">
+    <echo message="building..."/>
+    <mkdir dir="${build.classes}"/>
+    <javac srcdir="${src.dir}/java" destdir="${build.classes}" verbose="off"
+      debug="on" debuglevel="lines,vars,source">
+      <classpath refid="project.class.path"/>
+    </javac>
+    <echo message="done."/>
+  </target>
+
+  <target name="build-test" depends="build">
+    <echo message="building..."/>
+    <mkdir dir="${build.test.classes}"/>
+      <javac srcdir="${src.dir}/test/java" destdir="${build.test.classes}" verbose="off"
+      debug="on" debuglevel="lines,vars,source">
+      <classpath refid="project.class.path"/>
+    </javac>
+    <echo message="done."/>
+  </target>
+
+  <target name="jar" depends="build"
+    description="Creates JAR of the TellApart Hadoop code.">
+    <jar jarfile="${build.dir}/tellapart-hadoop.jar">
+      <fileset dir="${build.classes}"/>
+    </jar>
+  </target>
+
+  <target name="test-jar" depends="build-test"
+    description="Creates JAR of the TellApart Hadoop test code">
+    <jar jarfile="${build.dir}/tellapart-hadoop-test.jar">
+      <fileset dir="${build.test.classes}"/>
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
+
+  <target name="runtests" depends="build-test">
+    <mkdir dir="${test.results}"/>
+    <junit showoutput="no" printsummary="yes" haltonfailure="yes" maxmemory="1024m">
+      <classpath>
+        <path refid="project.class.path"/>
+        <pathelement location="${build.test.classes}"/>
+      </classpath>
+
+        <batchtest fork="yes" todir="${test.results}">
+        <formatter type="plain"/>
+        <fileset dir="${src.dir}/test/java">
+          <!--
+            Note: Expect all classes ending in "Test.java" to be junit test
+            cases.
+          -->
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+</project>
